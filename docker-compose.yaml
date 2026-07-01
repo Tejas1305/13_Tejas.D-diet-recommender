@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    container_name: diet-db
+    environment: 
+      POSTGRES_USER: ${POSTGRES_USER:-diet}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-diet}
+      POSTGRES_DB: ${POSTGRES_DB:-diet}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-diet}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - diet-nets
+
+volumes:
+  db_data:
+
+networks:
+  diet-nets:
+    driver: bridge
+
+
+
