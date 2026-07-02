@@ -33,6 +33,18 @@ services:
     networks:
       - diet-nets
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: diet-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - diet-nets
+
 volumes:
   db_data:
 
