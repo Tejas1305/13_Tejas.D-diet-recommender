@@ -25,6 +25,7 @@ services:
     container_name: diet-backend
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-diet}:${POSTGRES_PASSWORD:-diet}@db:5432/${POSTGRES_DB:-diet}
+      JWT_SECRET: ${JWT_SECRET:-diet-secret}
     ports:
       - "8000:8000"
     depends_on:
