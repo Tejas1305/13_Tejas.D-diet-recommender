@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16
+    image: postgres:17
     container_name: diet-db
     environment: 
       POSTGRES_USER: ${POSTGRES_USER:-diet}
@@ -15,6 +15,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - diet-nets
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: diet-backend
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-diet}:${POSTGRES_PASSWORD:-diet}@db:5432/${POSTGRES_DB:-diet}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - diet-nets
 
