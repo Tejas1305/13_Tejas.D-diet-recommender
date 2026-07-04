@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Login from "./Login";
 import Signup from "./Signup";
+import Preferences from "./Preferences";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -19,10 +20,8 @@ function App() {
     return (
       <div className="auth-page">
         <h1>Diet Recommender</h1>
-        <div className="card">
-          <p>You are logged in.</p>
-          <button onClick={handleLogout}>Log out</button>
-        </div>
+        <Preferences />
+        <button className="link-button" onClick={handleLogout}>Log out</button>
       </div>
     );
   }
