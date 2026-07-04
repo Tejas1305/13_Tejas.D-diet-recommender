@@ -21,6 +21,7 @@ class PreferenceReq(BaseModel):
     daily_cal_goal: float | None = 2000.0
     daily_prot_goal: float | None = 50.0
     allergies: list[str] = []
+    gender: str | None = None
     height: float | None = None
     weight: float | None = None
     age: int | None = None
@@ -31,6 +32,7 @@ class PreferenceRes(BaseModel):
     daily_cal_goal: float | None
     daily_prot_goal: float | None
     allergies: list[str]
+    gender: str | None
     height: float | None
     weight: float | None
     age: int | None

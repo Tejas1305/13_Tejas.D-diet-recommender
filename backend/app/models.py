@@ -17,6 +17,7 @@ class UserPref(Base):
     diet_type = Column(String)
     daily_cal_goal = Column(Float)
     daily_prot_goal = Column(Float)
+    gender = Column(String, nullable=True)
     height = Column(Float, nullable=True)
     weight = Column(Float, nullable=True)
     age = Column(Integer, nullable=True)

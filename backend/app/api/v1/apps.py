@@ -27,22 +27,16 @@ def get_preferences(db: Session = Depends(get_db), user_id: int = Depends(get_cu
     allergy_list = [a.allergy for a in allergies]
     
     if not pref:
-        return PreferenceRes(
-            diet_type="non_vegetarian",
-            daily_cal_goal=2000.0,
-            daily_prot_goal=50.0,
-            allergies=allergy_list,
-            height=None,
-            weight=None,
-            age=None,
-            activity_level=None
-        )
-        
+        # No row yet for this user - fall back to PreferenceReq's own defaults
+        # instead of repeating them here.
+        return PreferenceRes(**PreferenceReq(allergies=allergy_list).model_dump())
+
     return PreferenceRes(
         diet_type=pref.diet_type,
         daily_cal_goal=pref.daily_cal_goal,
         daily_prot_goal=pref.daily_prot_goal,
         allergies=allergy_list,
+        gender=pref.gender,
         height=pref.height,
         weight=pref.weight,
         age=pref.age,
@@ -62,12 +56,13 @@ def update_preferences(req: PreferenceReq, db: Session = Depends(get_db), user_i
     pref.diet_type = req.diet_type
     pref.daily_cal_goal = req.daily_cal_goal
     pref.daily_prot_goal = req.daily_prot_goal
+    pref.gender = req.gender
     pref.height = req.height
     pref.weight = req.weight
     pref.age = req.age
     pref.activity_level = req.activity_level
     
-    # Overwrite allergies: drop existing rows and insert the new ones
+    # Overwrite allergies
     db.query(UserAllergy).filter(UserAllergy.user_id == user_id).delete()
     for allergy_name in req.allergies:
         db.add(UserAllergy(user_id=user_id, allergy=allergy_name.lower().strip()))
@@ -80,6 +75,7 @@ def update_preferences(req: PreferenceReq, db: Session = Depends(get_db), user_i
         daily_cal_goal=pref.daily_cal_goal,
         daily_prot_goal=pref.daily_prot_goal,
         allergies=req.allergies,
+        gender=pref.gender,
         height=pref.height,
         weight=pref.weight,
         age=pref.age,
