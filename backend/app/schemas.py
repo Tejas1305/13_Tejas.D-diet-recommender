@@ -61,3 +61,14 @@ class RecipeDetailsRes(BaseModel):
     directions: list[str]
     calories: float
     protein: float
+    
+class ShoppingItemReq(BaseModel):
+    ingredient_name: str
+
+class ShoppingItemRes(BaseModel):
+    id: int
+    ingredient_name: str
+    is_bought: bool
+
+    class Config:
+        from_attributes = True
