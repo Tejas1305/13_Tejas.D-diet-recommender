@@ -53,3 +53,11 @@ class DayPlanRes(BaseModel):
 class RatingReq(BaseModel):
     recipe_id: int
     rating: int
+    
+class RecipeDetailsRes(BaseModel):
+    recipe_id: int
+    title: str
+    ingredients: list[str]
+    directions: list[str]
+    calories: float
+    protein: float

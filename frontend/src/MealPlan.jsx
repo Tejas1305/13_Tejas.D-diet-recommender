@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getRecommendations, rateRecipe } from "./api";
+import { getRecommendations, rateRecipe, getRecipeDetails } from "./api";
 
 const MEAL_SLOTS = [
   { key: "breakfast", label: "Breakfast" },
@@ -18,6 +18,9 @@ function MealPlan() {
   const [error, setError] = useState("");
   const [rateError, setRateError] = useState("");
   const [ratings, setRatings] = useState({});
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [recipeLoading, setRecipeLoading] = useState(false);
+  const [recipeError, setRecipeError] = useState("");
 
   async function fetchPlan() {
     const data = await getRecommendations();
@@ -45,6 +48,25 @@ function MealPlan() {
     }
   }
 
+  async function openRecipe(recipeId) {
+    setSelectedRecipe(null);
+    setRecipeError("");
+    setRecipeLoading(true);
+    try {
+      const data = await getRecipeDetails(recipeId);
+      setSelectedRecipe(data);
+    } catch (err) {
+      setRecipeError(err.message);
+    } finally {
+      setRecipeLoading(false);
+    }
+  }
+
+  function closeRecipe() {
+    setSelectedRecipe(null);
+    setRecipeError("");
+  }
+
   if (loading) {
     return (
       <div className="card meal-plan-card">
@@ -60,6 +82,8 @@ function MealPlan() {
       </div>
     );
   }
+
+  const showModal = recipeLoading || selectedRecipe || recipeError;
 
   return (
     <div className="card meal-plan-card">
@@ -80,7 +104,7 @@ function MealPlan() {
           <div className="recipe-list">
             {(meals[key] || []).map((item) => (
               <div key={item.recipe_id} className="recipe-card">
-                <div className="recipe-card-top">
+                <div className="recipe-card-top" onClick={() => openRecipe(item.recipe_id)}>
                   <div className="recipe-info">
                     <p className="recipe-title">{item.title}</p>
                     <p className="hint-text">{item.explanation}</p>
@@ -109,6 +133,45 @@ function MealPlan() {
           </div>
         </section>
       ))}
+
+      {showModal && (
+        <div className="modal-overlay" onClick={closeRecipe}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="close-button" onClick={closeRecipe}>×</button>
+
+            {recipeLoading && <p>Loading recipe...</p>}
+            {recipeError && <p className="error">{recipeError}</p>}
+
+            {selectedRecipe && (
+              <>
+                <h2>{selectedRecipe.title}</h2>
+                <div className="pill-row">
+                  <span className="pill">{selectedRecipe.calories} cal</span>
+                  <span className="pill">{selectedRecipe.protein}g protein</span>
+                </div>
+
+                <div className="recipe-details-section">
+                  <h3>Ingredients</h3>
+                  <ul>
+                    {selectedRecipe.ingredients.map((ingredient, i) => (
+                      <li key={i}>{ingredient}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="recipe-details-section">
+                  <h3>Directions</h3>
+                  <ol>
+                    {selectedRecipe.directions.map((step, i) => (
+                      <li key={i}>{step}</li>
+                    ))}
+                  </ol>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

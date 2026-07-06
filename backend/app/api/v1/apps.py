@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import UserPref, UserAllergy, UserRating
-from app.schemas import PreferenceReq, PreferenceRes, DayPlanRes, RatingReq
+from app.schemas import PreferenceReq, PreferenceRes, DayPlanRes, RatingReq, RecipeDetailsRes
 from app.auth import verify_token
 
 
@@ -110,6 +110,17 @@ def get_daily_recc( request: Request, db: Session = Depends(get_db), user_id: in
     plan = engine.recommend_day(prefs = pref_dict, ratings = ratings_list, num_options = 3)
     
     return plan.as_dict()
+
+@router.get("/recipes/{recipe_id}", response_model=RecipeDetailsRes)
+def get_recipe(recipe_id: int, request: Request, user_id: int = Depends(get_current_user_id)):
+    """Fetch full ingredient and instruction details for a specific recipe."""
+    engine = request.app.state.recommender
+    
+    details = engine.get_recipe_details(recipe_id)
+    if not details:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+        
+    return details
 
 @router.post("/rate")
 def rate_recipe(req: RatingReq, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):

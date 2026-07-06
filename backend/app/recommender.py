@@ -157,6 +157,8 @@ class Recommender:
         source_rating: np.ndarray,
         matrix: sparse.csr_matrix,
         vectorizer: TfidfVectorizer,
+        ingredients: list[list[str]],
+        directions: list[list[str]],
     ):
         self.ids = ids
         self.titles = titles
@@ -171,6 +173,8 @@ class Recommender:
         self.source_rating = source_rating
         self.matrix = matrix
         self.vectorizer = vectorizer
+        self.ingredients = ingredients
+        self.directions = directions
         self.feature_names = np.asarray(vectorizer.get_feature_names_out())
         self.id_to_row = {int(rid): i for i, rid in enumerate(ids)}
         self.n = matrix.shape[0]
@@ -190,6 +194,8 @@ class Recommender:
         ingredient_blobs: list[str] = []
         source_rating: list[float] = []
         documents: list[str] = []
+        ingredients: list[list[str]] = []
+        directions: list[list[str]] = []
 
         seen_titles = set()
 
@@ -200,11 +206,11 @@ class Recommender:
                 continue
             seen_titles.add(title.lower())
 
-            ingredients = r.get("ingredients")
-            directions = r.get("directions")
+            recipe_ingredients = r.get("ingredients")
+            recipe_directions = r.get("directions")
             cal = r.get("calories")
             prot = r.get("protein")
-            if not (title and ingredients and directions and cal is not None and prot is not None):
+            if not (title and recipe_ingredients and recipe_directions and cal is not None and prot is not None):
                 continue
             # Nutrition sanity gate.
             try:
@@ -216,7 +222,7 @@ class Recommender:
                 continue
 
             cats = frozenset(r.get("categories") or [])
-            ingredient_text = clean_ing(ingredients)
+            ingredient_text = clean_ing(recipe_ingredients)
             tag_text = " ".join(t.lower().replace(" ", "_") for t in cats)
 
             ids.append(int(r["id"]) if r.get("id") is not None else position)
@@ -226,8 +232,10 @@ class Recommender:
             fat.append(num(r.get("fat")))
             sodium.append(num(r.get("sodium")))
             categories.append(cats)
-            blob = " ".join(ingredients).lower()
+            blob = " ".join(recipe_ingredients).lower()
             ingredient_blobs.append(blob)
+            ingredients.append(recipe_ingredients)
+            directions.append(recipe_directions)
             source_rating.append(num(r.get("rating")))
             documents.append(ingredient_text + " " + tag_text)
 
@@ -266,7 +274,23 @@ class Recommender:
             source_rating=np.asarray(source_rating, dtype=float),
             matrix=matrix.tocsr(),
             vectorizer=vectorizer,
+            ingredients=ingredients,
+            directions=directions,
         )
+    
+    def get_recipe_details(self, recipe_id: int) -> dict | None:
+        row = self.id_to_row.get(recipe_id)
+        if row is None:
+            return None
+            
+        return {
+            "recipe_id": recipe_id,
+            "title": self.titles[row],
+            "ingredients": self.ingredients[row],
+            "directions": self.directions[row],
+            "calories": float(self.calories[row]),
+            "protein": float(self.protein[row])
+        }
 
     # taste & scoring
 
@@ -428,7 +452,6 @@ class Recommender:
         if terms:
             facts.append("shares " + ", ".join(terms) + " with dishes you rated well")
         return "; ".join(facts)
-
 
 def num(value) -> float:
     """Coerce to float, mapping missing/garbage to 0.0."""

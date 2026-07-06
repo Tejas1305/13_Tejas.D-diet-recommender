@@ -52,6 +52,19 @@ export async function getRecommendations() {
   return res.json();
 }
 
+export async function getRecipeDetails(recipeId) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/recipes/${recipeId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.detail || "Failed to fetch recipe details");
+  }
+  return res.json();
+}
+
 export async function rateRecipe(recipeId, rating) {
   const token = localStorage.getItem("token");
   const res = await fetch(`${BASE}/pref/rate`, {
