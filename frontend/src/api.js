@@ -42,3 +42,12 @@ export async function updatePreferences(prefs) {
   if (!res.ok) throw new Error((await res.json()).detail || "Failed to update preferences");
   return res.json();
 }
+
+export async function getRecommendations() {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/recommendations`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error((await res.json()).detail || "Failed to fetch recommendations");
+  return res.json();
+}

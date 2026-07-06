@@ -50,7 +50,7 @@ function estimateGoals({ weight, height, age, gender, activityLevel }) {
   };
 }
 
-function Preferences() {
+function Preferences({ onSaved }) {
   const [step, setStep] = useState(1);
   const [dietType, setDietType] = useState("non_vegetarian");
   const [calorieGoal, setCalorieGoal] = useState(2000);
@@ -151,6 +151,7 @@ function Preferences() {
         activity_level: activityLevel === "" ? null : activityLevel,
       });
       setSuccess("Preferences saved.");
+      onSaved?.();
     } catch (err) {
       setError(err.message);
     } finally {
