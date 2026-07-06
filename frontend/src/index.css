@@ -9,13 +9,18 @@
 
 body {
   margin: 0;
-  background-color: #f4f5f7;
+  background-color: #f8f9fa;
+  background-image: url('/background_image.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 #root {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 24px;
 }
@@ -26,6 +31,33 @@ body {
   align-items: center;
   gap: 16px;
   width: 100%;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 24px;
+  background: #cdbda7;
+  border-radius: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app-header h1 {
+  margin: 0;
+}
+
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-nav .link-button {
+  margin: 0;
 }
 
 .card {
@@ -151,6 +183,8 @@ button:hover {
 
 .pill-button {
   width: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 8px 16px;
   background: #f4f5f7;
   color: #333;
@@ -222,8 +256,14 @@ button:hover {
 }
 
 .meal-plan-card {
-  max-width: 640px;
+  max-width: 1200px;
   text-align: left;
+}
+
+.meal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .cold-start-banner {
@@ -236,14 +276,6 @@ button:hover {
   margin-bottom: 24px;
 }
 
-.meal-section {
-  margin-bottom: 28px;
-}
-
-.meal-section:last-child {
-  margin-bottom: 0;
-}
-
 .meal-section h3 {
   font-size: 1rem;
   font-weight: 600;
@@ -252,9 +284,9 @@ button:hover {
 }
 
 .recipe-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .recipe-card {
@@ -273,6 +305,53 @@ button:hover {
   align-items: center;
   gap: 16px;
   cursor: pointer;
+}
+
+.recipe-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.favorite-button {
+  width: auto;
+  background: none;
+  border: none;
+  padding: 4px;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.favorite-button:hover {
+  background: none;
+  color: #e0245e;
+}
+
+.favorite-button.favorited {
+  color: #e0245e;
+}
+
+.favorites-card {
+  max-width: 480px;
+  text-align: left;
+}
+
+.unsave-button {
+  width: auto;
+  flex-shrink: 0;
+  padding: 6px 14px;
+  background: #f4f5f7;
+  color: #d93025;
+  border: 1px solid #dfe1e5;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.unsave-button:hover {
+  background: #fdecea;
 }
 
 .recipe-info {
@@ -425,7 +504,7 @@ button:hover {
 }
 
 .shopping-card {
-  max-width: 420px;
+  max-width: 900px;
   text-align: left;
 }
 
@@ -433,9 +512,9 @@ button:hover {
   list-style: none;
   margin: 0 0 20px;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
 }
 
 .shopping-item {

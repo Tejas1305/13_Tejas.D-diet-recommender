@@ -4,11 +4,13 @@ import Signup from "./Signup";
 import Preferences from "./Preferences";
 import MealPlan from "./MealPlan";
 import ShoppingList from "./ShoppingList";
+import Favorites from "./Favorites";
 import { getPreferences } from "./api";
 
 const NAV_ITEMS = [
   { key: "mealplan", label: "Meal Plan" },
   { key: "shopping", label: "Shopping List" },
+  { key: "favorites", label: "Favorites" },
   { key: "preferences", label: "Preferences" },
 ];
 
@@ -40,26 +42,27 @@ function App() {
 
     return (
       <div className="auth-page">
-        <h1>Diet Recommender</h1>
-
-        <div className="pill-row">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={`pill-button ${view === item.key ? "selected" : ""}`}
-              onClick={() => setView(item.key)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+        <header className="app-header">
+          <h1>Diet Recommender</h1>
+          <nav className="app-nav">
+            {NAV_ITEMS.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className={`pill-button ${view === item.key ? "selected" : ""}`}
+                onClick={() => setView(item.key)}
+              >
+                {item.label}
+              </button>
+            ))}
+            <button type="button" className="link-button" onClick={handleLogout}>Log out</button>
+          </nav>
+        </header>
 
         {view === "preferences" && <Preferences onSaved={() => setView("mealplan")} />}
         {view === "mealplan" && <MealPlan />}
         {view === "shopping" && <ShoppingList />}
-
-        <button className="link-button" onClick={handleLogout}>Log out</button>
+        {view === "favorites" && <Favorites />}
       </div>
     );
   }
