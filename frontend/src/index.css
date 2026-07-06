@@ -487,51 +487,6 @@ button:hover {
   gap: 8px;
 }
 
-.add-item-button {
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-  padding: 0;
-  border-radius: 50%;
-  background: #2563eb;
-  color: #ffffff;
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.add-item-button:hover {
-  background: #1d4ed8;
-}
-
-.shopping-card {
-  max-width: 900px;
-  text-align: left;
-}
-
-.shopping-list {
-  list-style: none;
-  margin: 0 0 20px;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 12px;
-}
-
-.shopping-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: #fafafa;
-  border: 1px solid #e3e5e8;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.shopping-item:hover {
-  background: #f4f5f7;
-}
-
 .checkbox {
   width: 20px;
   height: 20px;

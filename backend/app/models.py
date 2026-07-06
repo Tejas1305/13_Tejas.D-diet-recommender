@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
 from app.db import Base
 
 class User(Base):
@@ -37,14 +37,6 @@ class UserRating(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     recipe_id = Column(Integer, nullable=False, index=True)
     rating = Column(Integer, nullable=False)
-    
-class ShoppingItem(Base):
-    __tablename__ = "shopping_items"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    ingredient_name = Column(String, nullable=False)
-    is_bought = Column(Boolean, default=False)
     
 class FavoriteMeal(Base):
     __tablename__ = "favorite_meals"

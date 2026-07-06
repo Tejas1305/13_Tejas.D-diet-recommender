@@ -3,7 +3,6 @@ import {
   getRecommendations,
   rateRecipe,
   getRecipeDetails,
-  addShoppingItem,
   getFavorites,
   addFavorite,
   removeFavorite,
@@ -29,18 +28,17 @@ function MealPlan() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [recipeError, setRecipeError] = useState("");
-  const [addedItems, setAddedItems] = useState({});
   const [favorites, setFavorites] = useState([]);
   const [favError, setFavError] = useState("");
 
-  async function fetchPlan() {
-    const data = await getRecommendations();
+  function applyPlan(data) {
     setMeals(data.meals);
     setColdStart(Boolean(data.cold_start));
   }
 
   useEffect(() => {
-    fetchPlan()
+    getRecommendations()
+      .then(applyPlan)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
 
@@ -78,7 +76,8 @@ function MealPlan() {
     setRateError("");
     setRefreshing(true);
     try {
-      await fetchPlan();
+      const data = await getRecommendations();
+      applyPlan(data);
     } catch (err) {
       setRateError(err.message);
     } finally {
@@ -89,7 +88,6 @@ function MealPlan() {
   async function openRecipe(recipeId) {
     setSelectedRecipe(null);
     setRecipeError("");
-    setAddedItems({});
     setRecipeLoading(true);
     try {
       const data = await getRecipeDetails(recipeId);
@@ -106,17 +104,6 @@ function MealPlan() {
     setRecipeError("");
   }
 
-  async function handleAddItem(ingredient, index) {
-    try {
-      await addShoppingItem(ingredient);
-      setAddedItems((prev) => ({ ...prev, [index]: true }));
-      setTimeout(() => {
-        setAddedItems((prev) => ({ ...prev, [index]: false }));
-      }, 2000);
-    } catch (err) {
-      setRecipeError(err.message);
-    }
-  }
 
   if (loading) {
     return (
@@ -226,13 +213,6 @@ function MealPlan() {
                     {selectedRecipe.ingredients.map((ingredient, i) => (
                       <li key={i}>
                         <span>{ingredient}</span>
-                        <button
-                          type="button"
-                          className="add-item-button"
-                          onClick={() => handleAddItem(ingredient, i)}
-                        >
-                          {addedItems[i] ? "✓" : "+"}
-                        </button>
                       </li>
                     ))}
                   </ul>

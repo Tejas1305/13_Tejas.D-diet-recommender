@@ -3,13 +3,11 @@ import Login from "./Login";
 import Signup from "./Signup";
 import Preferences from "./Preferences";
 import MealPlan from "./MealPlan";
-import ShoppingList from "./ShoppingList";
 import Favorites from "./Favorites";
 import { getPreferences } from "./api";
 
 const NAV_ITEMS = [
   { key: "mealplan", label: "Meal Plan" },
-  { key: "shopping", label: "Shopping List" },
   { key: "favorites", label: "Favorites" },
   { key: "preferences", label: "Preferences" },
 ];
@@ -61,7 +59,6 @@ function App() {
 
         {view === "preferences" && <Preferences onSaved={() => setView("mealplan")} />}
         {view === "mealplan" && <MealPlan />}
-        {view === "shopping" && <ShoppingList />}
         {view === "favorites" && <Favorites />}
       </div>
     );

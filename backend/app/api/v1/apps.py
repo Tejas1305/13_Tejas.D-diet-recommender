@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import UserPref, UserAllergy, UserRating, ShoppingItem, FavoriteMeal
-from app.schemas import PreferenceReq, PreferenceRes, DayPlanRes, RatingReq, RecipeDetailsRes, ShoppingItemReq, ShoppingItemRes, FavoriteMealReq, FavoriteMealRes
+from app.models import UserPref, UserAllergy, UserRating, FavoriteMeal
+from app.schemas import PreferenceReq, PreferenceRes, DayPlanRes, RatingReq, RecipeDetailsRes, FavoriteMealReq, FavoriteMealRes
 from app.auth import verify_token
 
 
@@ -144,49 +144,6 @@ def rate_recipe(req: RatingReq, db: Session = Depends(get_db), user_id: int = De
         
     db.commit()
     return {"status": "success", "message": "Rating saved"}
-
-@router.get("/shopping", response_model=list[ShoppingItemRes])
-def get_shopping_list(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
-    """Fetch the user's entire shopping list."""
-    return db.query(ShoppingItem).filter(ShoppingItem.user_id == user_id).order_by(ShoppingItem.id.desc()).all()
-
-@router.post("/shopping", response_model=ShoppingItemRes)
-def add_shopping_item(req: ShoppingItemReq, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
-    """Add a new ingredient to the shopping list."""
-    # Prevent adding exact duplicates if it's already on the active list
-    existing = db.query(ShoppingItem).filter(
-        ShoppingItem.user_id == user_id,
-        ShoppingItem.ingredient_name == req.ingredient_name,
-        ShoppingItem.is_bought == False
-    ).first()
-    
-    if existing:
-        return existing
-
-    new_item = ShoppingItem(user_id=user_id, ingredient_name=req.ingredient_name)
-    db.add(new_item)
-    db.commit()
-    db.refresh(new_item)
-    return new_item
-
-@router.patch("/shopping/{item_id}", response_model=ShoppingItemRes)
-def toggle_shopping_item(item_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
-    """Toggle the is_bought status of a specific item."""
-    item = db.query(ShoppingItem).filter(ShoppingItem.id == item_id, ShoppingItem.user_id == user_id).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    
-    item.is_bought = not item.is_bought
-    db.commit()
-    db.refresh(item)
-    return item
-
-@router.delete("/shopping", response_model=dict)
-def clear_bought_items(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
-    """Delete all items that have been marked as bought."""
-    db.query(ShoppingItem).filter(ShoppingItem.user_id == user_id, ShoppingItem.is_bought == True).delete()
-    db.commit()
-    return {"status": "success", "message": "Cleared bought items"}
 
 @router.get("/favorites", response_model=list[FavoriteMealRes])
 def get_favorites(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
