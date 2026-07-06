@@ -49,3 +49,7 @@ class MealOption(BaseModel):
 class DayPlanRes(BaseModel):
     meals: dict[str, list[MealOption]]
     cold_start: bool
+    
+class RatingReq(BaseModel):
+    recipe_id: int
+    rating: int

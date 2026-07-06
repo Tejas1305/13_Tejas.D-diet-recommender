@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import UserPref, UserAllergy
-from app.schemas import PreferenceReq, PreferenceRes, DayPlanRes
+from app.models import UserPref, UserAllergy, UserRating
+from app.schemas import PreferenceReq, PreferenceRes, DayPlanRes, RatingReq
 from app.auth import verify_token
 
 
@@ -102,8 +102,34 @@ def get_daily_recc( request: Request, db: Session = Depends(get_db), user_id: in
     "allergies": allergy_list
     }
     
+    user_ratings = db.query(UserRating).filter(UserRating.user_id == user_id).all()
+    ratings_list = [(r.recipe_id, r.rating) for r in user_ratings]
+    
     # Generate the meal plan
     engine = request.app.state.recommender
-    plan = engine.recommend_day(prefs = pref_dict, ratings = [], num_options = 3)
+    plan = engine.recommend_day(prefs = pref_dict, ratings = ratings_list, num_options = 3)
     
     return plan.as_dict()
+
+@router.post("/rate")
+def rate_recipe(req: RatingReq, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    """Save or update a user's rating for a specific recipe."""
+    
+    # Check if the user has already rated this recipe
+    existing_rating = db.query(UserRating).filter(
+        UserRating.user_id == user_id, 
+        UserRating.recipe_id == req.recipe_id
+    ).first()
+    
+    if existing_rating:
+        existing_rating.rating = req.rating
+    else:
+        new_rating = UserRating(
+            user_id=user_id, 
+            recipe_id=req.recipe_id, 
+            rating=req.rating
+        )
+        db.add(new_rating)
+        
+    db.commit()
+    return {"status": "success", "message": "Rating saved"}

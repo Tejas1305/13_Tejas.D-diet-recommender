@@ -259,13 +259,19 @@ button:hover {
 
 .recipe-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 10px;
   padding: 14px 16px;
   background: #fafafa;
   border: 1px solid #e3e5e8;
   border-radius: 8px;
+}
+
+.recipe-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
 }
 
 .recipe-info {
@@ -289,8 +295,41 @@ button:hover {
   white-space: nowrap;
 }
 
+.rating-container {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-top: 1px solid #e3e5e8;
+  padding-top: 10px;
+}
+
+.star {
+  width: auto;
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.star:hover {
+  background: none;
+  color: #f5b400;
+}
+
+.star.filled {
+  color: #f5b400;
+}
+
+.star:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 @media (max-width: 480px) {
-  .recipe-card {
+  .recipe-card-top {
     flex-direction: column;
     align-items: flex-start;
   }

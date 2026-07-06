@@ -29,3 +29,11 @@ class UserAllergy(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     allergy = Column(String)
+    
+class UserRating(Base):
+    __tablename__ = "user_ratings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    recipe_id = Column(Integer, nullable=False, index=True)
+    rating = Column(Integer, nullable=False)

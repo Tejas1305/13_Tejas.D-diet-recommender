@@ -51,3 +51,21 @@ export async function getRecommendations() {
   if (!res.ok) throw new Error((await res.json()).detail || "Failed to fetch recommendations");
   return res.json();
 }
+
+export async function rateRecipe(recipeId, rating) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/rate`, {
+    method: "POST",
+    headers: { 
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify({ recipe_id: recipeId, rating: rating }),
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.detail || "Failed to submit rating");
+  }
+  return res.json();
+}
