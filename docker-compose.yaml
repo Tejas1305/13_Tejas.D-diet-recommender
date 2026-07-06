@@ -28,6 +28,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-diet-secret}
     ports:
       - "8000:8000"
+    volumes:
+      - ./seed:/seed
     depends_on:
       db:
         condition: service_healthy
