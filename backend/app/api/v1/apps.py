@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import UserPref, UserAllergy
-from app.schemas import PreferenceReq, PreferenceRes
+from app.schemas import PreferenceReq, PreferenceRes, DayPlanRes
 from app.auth import verify_token
+
 
 router = APIRouter(prefix="/pref", tags=["preferences"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -81,3 +82,28 @@ def update_preferences(req: PreferenceReq, db: Session = Depends(get_db), user_i
         age=pref.age,
         activity_level=pref.activity_level
     )
+    
+@router.get("/recommendations", response_model=DayPlanRes)
+def get_daily_recc( request: Request, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    
+    """Get daily meal recommendations based on user preferences."""
+    
+    pref = db.query(UserPref).filter(UserPref.user_id == user_id).first()
+    allergies = db.query(UserAllergy).filter(UserAllergy.user_id == user_id).all()
+    
+    allergy_list = [a.allergy for a in allergies]
+    
+   
+    # If the user hasn't set preferences yet, use defaults
+    pref_dict = {
+    "diet_type": pref.diet_type if pref else "non_vegetarian",
+    "daily_cal_goal": pref.daily_cal_goal if pref else 2000.0,
+    "daily_prot_goal": pref.daily_prot_goal if pref else 50.0,
+    "allergies": allergy_list
+    }
+    
+    # Generate the meal plan
+    engine = request.app.state.recommender
+    plan = engine.recommend_day(prefs = pref_dict, ratings = [], num_options = 3)
+    
+    return plan.as_dict()

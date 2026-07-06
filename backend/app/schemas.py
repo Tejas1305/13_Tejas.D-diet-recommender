@@ -37,3 +37,15 @@ class PreferenceRes(BaseModel):
     weight: float | None
     age: int | None
     activity_level: str | None
+    
+class MealOption(BaseModel):
+    slot: str
+    recipe_id: int
+    title: str
+    calories: float
+    protein: float
+    explanation: str
+
+class DayPlanRes(BaseModel):
+    meals: dict[str, list[MealOption]]
+    cold_start: bool
