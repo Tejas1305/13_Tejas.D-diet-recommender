@@ -191,9 +191,15 @@ class Recommender:
         source_rating: list[float] = []
         documents: list[str] = []
 
+        seen_titles = set()
+
         for position, r in enumerate(records):
             # Required fields — skip anything the app can't use.
             title = (r.get("title") or "").strip()
+            if not title or title.lower() in seen_titles:
+                continue
+            seen_titles.add(title.lower())
+
             ingredients = r.get("ingredients")
             directions = r.get("directions")
             cal = r.get("calories")
