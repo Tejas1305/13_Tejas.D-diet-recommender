@@ -125,6 +125,24 @@ function Preferences({ onSaved }) {
       setStepError("Please fill in gender, height, weight, age, and activity level to continue.");
       return;
     }
+
+    const h = Number(height);
+    const w = Number(weight);
+    const a = Number(age);
+
+    if (h < 50 || h > 300) {
+      setStepError("Please enter a valid height (50cm - 300cm).");
+      return;
+    }
+    if (w < 20 || w > 500) {
+      setStepError("Please enter a valid weight (20kg - 500kg).");
+      return;
+    }
+    if (a < 10 || a > 120) {
+      setStepError("Please enter a valid age (10 - 120).");
+      return;
+    }
+
     setStepError("");
     const goals = estimateGoals({ weight, height, age, gender, activityLevel });
     setCalorieGoal(goals.calorieGoal);
@@ -137,12 +155,14 @@ function Preferences({ onSaved }) {
     setSuccess("");
     setSaving(true);
     try {
-      const finalCalorieGoal = Math.max(MIN_CALORIE_GOAL, Number(calorieGoal) || MIN_CALORIE_GOAL);
+      const finalCalorieGoal = Math.min(8000, Math.max(MIN_CALORIE_GOAL, Number(calorieGoal) || MIN_CALORIE_GOAL));
+      const finalProteinGoal = Math.min(600, Math.max(0, Number(proteinGoal) || 0));
       setCalorieGoal(finalCalorieGoal);
+      setProteinGoal(finalProteinGoal);
       await updatePreferences({
         diet_type: dietType,
         daily_cal_goal: finalCalorieGoal,
-        daily_prot_goal: Number(proteinGoal),
+        daily_prot_goal: finalProteinGoal,
         allergies,
         gender: gender === "" ? null : gender,
         height: height === "" ? null : Number(height),
