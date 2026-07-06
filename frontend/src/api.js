@@ -82,3 +82,46 @@ export async function rateRecipe(recipeId, rating) {
   }
   return res.json();
 }
+
+export async function getShoppingList() {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/shopping`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch shopping list");
+  return res.json();
+}
+
+export async function addShoppingItem(ingredient) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/shopping`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ ingredient_name: ingredient }),
+  });
+  if (!res.ok) throw new Error("Failed to add item");
+  return res.json();
+}
+
+export async function toggleShoppingItem(itemId) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/shopping/${itemId}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to toggle item");
+  return res.json();
+}
+
+export async function clearBoughtItems() {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/shopping`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to clear items");
+  return res.json();
+}

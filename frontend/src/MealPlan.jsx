@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getRecommendations, rateRecipe, getRecipeDetails } from "./api";
+import { getRecommendations, rateRecipe, getRecipeDetails, addShoppingItem } from "./api";
 
 const MEAL_SLOTS = [
   { key: "breakfast", label: "Breakfast" },
@@ -21,6 +21,7 @@ function MealPlan() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [recipeError, setRecipeError] = useState("");
+  const [addedItems, setAddedItems] = useState({});
 
   async function fetchPlan() {
     const data = await getRecommendations();
@@ -51,6 +52,7 @@ function MealPlan() {
   async function openRecipe(recipeId) {
     setSelectedRecipe(null);
     setRecipeError("");
+    setAddedItems({});
     setRecipeLoading(true);
     try {
       const data = await getRecipeDetails(recipeId);
@@ -65,6 +67,18 @@ function MealPlan() {
   function closeRecipe() {
     setSelectedRecipe(null);
     setRecipeError("");
+  }
+
+  async function handleAddItem(ingredient, index) {
+    try {
+      await addShoppingItem(ingredient);
+      setAddedItems((prev) => ({ ...prev, [index]: true }));
+      setTimeout(() => {
+        setAddedItems((prev) => ({ ...prev, [index]: false }));
+      }, 2000);
+    } catch (err) {
+      setRecipeError(err.message);
+    }
   }
 
   if (loading) {
@@ -154,7 +168,16 @@ function MealPlan() {
                   <h3>Ingredients</h3>
                   <ul>
                     {selectedRecipe.ingredients.map((ingredient, i) => (
-                      <li key={i}>{ingredient}</li>
+                      <li key={i}>
+                        <span>{ingredient}</span>
+                        <button
+                          type="button"
+                          className="add-item-button"
+                          onClick={() => handleAddItem(ingredient, i)}
+                        >
+                          {addedItems[i] ? "✓" : "+"}
+                        </button>
+                      </li>
                     ))}
                   </ul>
                 </div>

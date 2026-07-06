@@ -3,7 +3,14 @@ import Login from "./Login";
 import Signup from "./Signup";
 import Preferences from "./Preferences";
 import MealPlan from "./MealPlan";
+import ShoppingList from "./ShoppingList";
 import { getPreferences } from "./api";
+
+const NAV_ITEMS = [
+  { key: "mealplan", label: "Meal Plan" },
+  { key: "shopping", label: "Shopping List" },
+  { key: "preferences", label: "Preferences" },
+];
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -34,16 +41,24 @@ function App() {
     return (
       <div className="auth-page">
         <h1>Diet Recommender</h1>
-        {view === "preferences" ? (
-          <Preferences onSaved={() => setView("mealplan")} />
-        ) : (
-          <>
-            <MealPlan />
-            <button className="link-button" onClick={() => setView("preferences")}>
-              ← Edit preferences
+
+        <div className="pill-row">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              className={`pill-button ${view === item.key ? "selected" : ""}`}
+              onClick={() => setView(item.key)}
+            >
+              {item.label}
             </button>
-          </>
-        )}
+          ))}
+        </div>
+
+        {view === "preferences" && <Preferences onSaved={() => setView("mealplan")} />}
+        {view === "mealplan" && <MealPlan />}
+        {view === "shopping" && <ShoppingList />}
+
         <button className="link-button" onClick={handleLogout}>Log out</button>
       </div>
     );
