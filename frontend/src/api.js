@@ -125,3 +125,36 @@ export async function clearBoughtItems() {
   if (!res.ok) throw new Error("Failed to clear items");
   return res.json();
 }
+
+export async function getFavorites() {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/favorites`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch favorites");
+  return res.json();
+}
+
+export async function addFavorite(recipeId, title) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/favorites`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ recipe_id: recipeId, title }),
+  });
+  if (!res.ok) throw new Error("Failed to add favorite");
+  return res.json();
+}
+
+export async function removeFavorite(recipeId) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE}/pref/favorites/${recipeId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to remove favorite");
+  return res.json();
+}
