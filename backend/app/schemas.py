@@ -72,3 +72,15 @@ class ShoppingItemRes(BaseModel):
 
     class Config:
         from_attributes = True
+
+class FavoriteMealReq(BaseModel):
+    recipe_id: int
+    title: str
+
+class FavoriteMealRes(BaseModel):
+    id: int
+    recipe_id: int
+    title: str
+
+    class Config:
+        from_attributes = True

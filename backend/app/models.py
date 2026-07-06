@@ -45,3 +45,11 @@ class ShoppingItem(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     ingredient_name = Column(String, nullable=False)
     is_bought = Column(Boolean, default=False)
+    
+class FavoriteMeal(Base):
+    __tablename__ = "favorite_meals"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    recipe_id = Column(Integer, nullable=False)
+    title = Column(String, nullable=False)

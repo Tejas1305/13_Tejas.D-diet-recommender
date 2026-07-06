@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import UserPref, UserAllergy, UserRating, ShoppingItem
-from app.schemas import PreferenceReq, PreferenceRes, DayPlanRes, RatingReq, RecipeDetailsRes, ShoppingItemReq, ShoppingItemRes
+from app.models import UserPref, UserAllergy, UserRating, ShoppingItem, FavoriteMeal
+from app.schemas import PreferenceReq, PreferenceRes, DayPlanRes, RatingReq, RecipeDetailsRes, ShoppingItemReq, ShoppingItemRes, FavoriteMealReq, FavoriteMealRes
 from app.auth import verify_token
 
 
@@ -187,3 +187,35 @@ def clear_bought_items(db: Session = Depends(get_db), user_id: int = Depends(get
     db.query(ShoppingItem).filter(ShoppingItem.user_id == user_id, ShoppingItem.is_bought == True).delete()
     db.commit()
     return {"status": "success", "message": "Cleared bought items"}
+
+@router.get("/favorites", response_model=list[FavoriteMealRes])
+def get_favorites(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    """Fetch the user's saved favorite meals."""
+    return db.query(FavoriteMeal).filter(FavoriteMeal.user_id == user_id).order_by(FavoriteMeal.id.desc()).all()
+
+@router.post("/favorites", response_model=FavoriteMealRes)
+def add_favorite(req: FavoriteMealReq, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    """Save a recipe to the user's favorites."""
+    existing = db.query(FavoriteMeal).filter(
+        FavoriteMeal.user_id == user_id, 
+        FavoriteMeal.recipe_id == req.recipe_id
+    ).first()
+    
+    if existing:
+        return existing
+
+    new_fav = FavoriteMeal(user_id=user_id, recipe_id=req.recipe_id, title=req.title)
+    db.add(new_fav)
+    db.commit()
+    db.refresh(new_fav)
+    return new_fav
+
+@router.delete("/favorites/{recipe_id}")
+def remove_favorite(recipe_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    """Remove a recipe from the user's favorites."""
+    db.query(FavoriteMeal).filter(
+        FavoriteMeal.user_id == user_id, 
+        FavoriteMeal.recipe_id == recipe_id
+    ).delete()
+    db.commit()
+    return {"status": "success", "message": "Removed from favorites"}
