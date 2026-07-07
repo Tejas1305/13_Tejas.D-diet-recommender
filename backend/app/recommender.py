@@ -22,6 +22,9 @@ SLOT_FRACTIONS: dict[str, float] = {
 
 BAND_LOW, BAND_HIGH = 0.60, 1.40
 
+# How much protein fit counts against taste when ranking a slot's options.
+PROTEIN_WEIGHT = 0.4
+
 # Ratings are centred here: 5* -> +2 (strong pull), 1* -> -2 (strong push).
 RATING_CENTRE = 3
 DISLIKE_MAX = 2
@@ -375,6 +378,7 @@ class Recommender:
         """
         ratings = ratings or []
         daily_cal = float(prefs.get("daily_cal_goal") or 2000)
+        daily_prot = float(prefs.get("daily_prot_goal") or 0)
 
         taste = self.taste_vector(ratings)
         cold = taste is None or taste.nnz == 0
@@ -387,7 +391,7 @@ class Recommender:
         for slot, frac in SLOT_FRACTIONS.items():
             slot_target = daily_cal * frac
             rows = self.pick_multiple_for_slot(
-                slot_target, eligible, scores, used, num_options
+                slot_target, daily_prot * frac, eligible, scores, used, num_options
             )
             
             plan.meals[slot] = []
@@ -397,18 +401,23 @@ class Recommender:
 
         return plan
     
-    def pick_multiple_for_slot(self, slot_target: float, eligible: np.ndarray, scores: np.ndarray, used: set[int], num_options: int) -> list[int]:
-        
-        """Returns the top N highest-scoring eligible recipes inside the calorie band."""
-        
+    def pick_multiple_for_slot(self, slot_target: float, prot_target: float, eligible: np.ndarray, scores: np.ndarray, used: set[int], num_options: int) -> list[int]:
+
+        """Returns the top N eligible recipes in the calorie band, ranked on taste and protein fit."""
+
         lo, hi = slot_target * BAND_LOW, slot_target * BAND_HIGH
         in_band = eligible & (self.calories >= lo) & (self.calories <= hi)
         candidates = np.flatnonzero(in_band)
         candidates = np.array([c for c in candidates if c not in used], dtype=int)
 
         if candidates.size:
-            # Sort all candidates by score (highest to lowest) and slice the top N
-            best_indices = np.argsort(scores[candidates])[::-1][:num_options]
+            # Blend taste with protein fit (both 0..1); protein fit maxes out once the slot target is met.
+            taste = scores[candidates].astype(float)
+            spread = taste.max() - taste.min()
+            taste_fit = (taste - taste.min()) / spread if spread > 0 else np.zeros_like(taste)
+            prot_fit = np.clip(self.protein[candidates] / prot_target, 0, 1) if prot_target > 0 else np.zeros_like(taste)
+            combined = (1 - PROTEIN_WEIGHT) * taste_fit + PROTEIN_WEIGHT * prot_fit
+            best_indices = np.argsort(combined)[::-1][:num_options]
             return [int(c) for c in candidates[best_indices]]
 
         # Fallback: nearest calories among all eligible, unused recipes

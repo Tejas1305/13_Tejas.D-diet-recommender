@@ -256,7 +256,7 @@ button:hover {
 }
 
 .meal-plan-card {
-  max-width: 1200px;
+  max-width: 100%;
   text-align: left;
 }
 
@@ -335,7 +335,7 @@ button:hover {
 }
 
 .favorites-card {
-  max-width: 480px;
+  max-width: 100%;
   text-align: left;
 }
 
