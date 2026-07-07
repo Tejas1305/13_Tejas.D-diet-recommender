@@ -14,7 +14,26 @@ You tell it a few things once — whether you're vegetarian, non-vegetarian or p
 - **Reasons you can trust** — each meal says why it was picked ("fits your lunch calories, adds 32 g protein, shares lentils with dishes you rated well").
 - **Real recipes** — tap any meal for its ingredients and directions, so you can actually make it.
 - **Learns your taste** — rate meals you enjoy and future plans drift toward the food you like.
-- **Shopping list & saved meals** — add missing ingredients to a list and tick them off as you shop; save favourites to find them again.
+- **Saved meals** — save favourites so you can find them again without hunting.
+
+---
+
+## Screenshots
+
+### Getting in
+| Sign up | Log in |
+|---|---|
+| ![Sign up](docs/interface_images/01-signup.png) | ![Log in](docs/interface_images/02-login.png) |
+
+### Setting preferences
+| Body details | Diet, goals & allergies |
+|---|---|
+| ![Body details](docs/interface_images/03-info.png) | ![Preferences](docs/interface_images/04-preferences.png) |
+
+### Using it
+| Meal plan | Favourites |
+|---|---|
+| ![Meal plan](docs/interface_images/05-meal_plan.png) | ![Favourites](docs/interface_images/06-favourites.png) |
 
 ---
 
