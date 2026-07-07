@@ -18,11 +18,11 @@ Low = nice to have if there's time.
 
 **The problem.** Eating to a plan is a small decision you make over and over, and it's more annoying than it sounds. Every meal has to clear the same hurdles — does it fit my diet, does it dodge my allergies, does it land near my calories and protein — and doing that in your head three times a day is exactly why people give up. Most apps either hand you a rigid plan that ignores your restrictions and your taste, or leave all the tracking to you.
 
-**How it solves it.** Ask a few things once — diet, allergies, calorie and protein targets — then hand back a full balanced day that already respects all of it. Every meal says why it's there, so you're not taking it on faith. Tap any meal for the actual recipe so you can cook it, save what you're missing to a shopping list, and rate what you like so tomorrow leans more toward your taste. Less deciding, more eating.
+**How it solves it.** Ask a few things once — diet, allergies, calorie and protein targets — then hand back a full balanced day that already respects all of it. Every meal says why it's there, so you're not taking it on faith. Tap any meal for the actual recipe so you can cook it, save the ones you like, and rate what you like so tomorrow leans more toward your taste. Less deciding, more eating.
 
 **Where it fits.** It's the planning layer between "I have a goal" and "I'm standing in the kitchen." Not a calorie tracker you log into after the fact, not a food-delivery app — a web app you open when you're deciding what to actually make. It picks up the part everyone finds tedious: turning your rules and goals into today's food.
 
-**When you'd use it.** Day to day, at the moments the decision comes up — in the morning to see the day's meals, before a grocery run to grab the shopping list, and any time today's plan doesn't appeal and you want a fresh one. Rating happens naturally after you've tried something, and over a week or two the recommendations quietly become more "you."
+**When you'd use it.** Day to day, at the moments the decision comes up — in the morning to see the day's meals, and any time today's plan doesn't appeal and you want a fresh one. Rating happens naturally after you've tried something, and over a week or two the recommendations quietly become more "you."
 
 ---
 
@@ -37,7 +37,7 @@ As a returning user, I want to log back in and land right where I left off, with
 **US-3 (High)**
 As a user, I want to log out so my account stays mine on a shared computer.
 
-**US-4 (Medium)**
+**US-4 (Medium) -- future scope**
 As a user who forgot my password, I want a way to reset it so I'm not locked out of my own account.
 
 ---
@@ -71,13 +71,7 @@ As a user, I want to rate the meals I like, so that the more I use the app, the 
 
 ---
 
-## Shopping and coming back
-
-**US-12 (Medium)**
-As a user, when a recipe needs something I don't have, I want to tap it onto a shopping list so I remember to grab it next time I'm out.
-
-**US-13 (Medium)**
-As a user, I want to open my shopping list and tick things off as I buy them.
+## Saving and coming back
 
 **US-14 (Medium)**
 As a user, I want to save my favourite meals so I can find them again without hunting.
