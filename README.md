@@ -70,7 +70,7 @@ No local Python, Node or PostgreSQL needed — it all runs inside the containers
 ```bash
 git clone https://github.com/Tejas1305/13_Tejas.D-diet-recommender.git
 cd 13_Tejas.D-diet-recommender
-docker compose up --build
+docker compose up
 ```
 
 The first run builds the images and starts all three services. The backend is set to wait until PostgreSQL reports healthy before it starts, so you don't have to worry about start-up order — Compose handles it.
