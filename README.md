@@ -45,7 +45,7 @@ Three containers, each doing one job, wired together on a private Docker network
 |-----------|-------|----------------|
 | **frontend** | React 19 + Vite | Everything you see and click. Calls the API and renders the result. |
 | **backend**  | FastAPI (Python 3.12) | Accounts, data, and the recommendation engine — all the actual work. |
-| **db**       | PostgreSQL 17 | Recipes loaded from the dataset, plus every user's preferences, ratings, plans and lists. |
+| **db**       | PostgreSQL 17 |  Every user's accounts, preferences, ratings and saved meals.  |
 
 The recommendation engine is **content-based**: it turns each recipe into a TF-IDF vector of its ingredients and tags, learns a "taste vector" from the recipes you've rated, and ranks candidates by cosine similarity — but only after filtering out anything that breaks a rule (wrong diet, contains an allergen, wrong calorie range). Content-based rather than collaborative because it works from your very first rating, with no need for a crowd of other users first.
 
