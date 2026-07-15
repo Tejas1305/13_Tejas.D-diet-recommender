@@ -29,7 +29,7 @@ graph TD
  
 ## Recommendations — US-8, 10, 16
  
-**`GET /pref/recommendations`** — the main event. No body; it reads the user's preferences, allergies and ratings and builds a day. Regenerating is just calling it again — there's no separate endpoint, and plans aren't stored, so there's no fetch-by-id.
+**`GET /pref/recommendations`** — the main event. No body; it reads the user's preferences, allergies and ratings and builds a day. Regenerating is just calling it again — there's no separate endpoint, and plans aren't stored, so there's no fetch-by-id. Drinks are excluded from generated plans.
  
 ```mermaid
 sequenceDiagram

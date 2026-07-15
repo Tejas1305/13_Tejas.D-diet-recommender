@@ -60,7 +60,7 @@ One row per user, so `user_id` *is* the primary key (a one-to-one link).
 |---|---|---|
 | id | serial | **PK** |
 | user_id | int | **FK → users.id**, on delete cascade |
-| allergy | text | a keyword like *peanut*, used to exclude recipes |
+| allergy | text | a category (dairy, gluten, …) or a custom word; expanded to ingredient terms when filtering |
 
 ---
 
@@ -76,8 +76,6 @@ The fuel for the recommendation engine — the user's taste is learned from thes
 | recipe_id | int | indexed; points into the in-memory catalogue, not an FK |
 | rating | int | 1–5 |
 
-*One rating per user per recipe isn't a database constraint — the rate endpoint looks for an existing row and updates it, otherwise inserts.*
-
 ### favorite_meals
 
 | Column | Type | Key / notes |
@@ -86,5 +84,3 @@ The fuel for the recommendation engine — the user's taste is learned from thes
 | user_id | int | **FK → users.id**, on delete cascade |
 | recipe_id | int | points into the in-memory catalogue, not an FK |
 | title | text | stored here because there's no recipes table to join to |
-
-*Saving the same recipe twice is prevented in the endpoint, not by a unique constraint.*
