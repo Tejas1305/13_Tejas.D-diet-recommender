@@ -93,7 +93,41 @@ FISH_TAGS = frozenset({
     "Trout", "Bass", "Snapper", "Shrimp", "Crab", "Lobster", "Clam", "Mussel",
     "Oyster", "Scallop", "Squid", "Octopus", "Anchovy", "Sardine", "Caviar",
 })
+ALLERGENS: dict[str, set[str]] = {
+    "dairy": {"milk", "butter", "cream", "cheese", "yogurt", "yoghurt", "ghee",
+              "buttermilk", "custard", "paneer", "curd", "mascarpone", "ricotta",
+              "parmesan", "mozzarella"},
+    "lactose": {"milk", "butter", "cream", "cheese", "yogurt", "yoghurt", "ghee",
+                "buttermilk", "custard"},
+    "gluten": {"flour", "bread", "pasta", "wheat", "barley", "rye", "couscous",
+               "semolina", "breadcrumb", "cracker", "noodle", "panko"},
+    "shellfish": {"shrimp", "prawn", "crab", "crabmeat", "lobster", "clam", "mussel",
+                  "oyster", "scallop", "squid", "calamari", "crawfish", "crayfish",
+                  "langoustine"},
+    "peanut": {"peanut", "groundnut"},
+    "egg": {"egg", "meringue", "aioli"},
+    "soy": {"soy", "soya", "tofu", "edamame", "miso", "tempeh"},
+    "nuts": {"almond", "cashew", "walnut", "pecan", "pistachio", "hazelnut",
+                "macadamia", "praline"},
+}
 
+# Drinks are excluded from meal plans by default — a smoothie or cocktail
+# isn't a meal. Matched on the title. The negative lookahead lets through
+DRINK_RE = re.compile(
+    r"\b(cocktail|margarita|martini|latte|lemonade|sangria|mojito|"
+    r"daiquiri|colada|spritzer|julep|mimosa|negroni|eggnog|mulled|"
+    r"highball|frappe|shrub|mocktail|punch|tonic)\b",
+    re.IGNORECASE,
+)
+# If a drink word co-occurs with any of these, it's a food, not a drink.
+NOT_A_DRINK = re.compile(
+    r"\b(cake|pie|bread|muffin|cookie|tart|roast|chop|braised|marinated|"
+    r"chicken|pork|beef|fish|salad|soup|pasta|rice|stew|casserole)\b",
+    re.IGNORECASE,
+)
+
+def is_drink(title: str) -> bool:
+    return bool(DRINK_RE.search(title)) and not NOT_A_DRINK.search(title)
 
 def clean_ing(lines: list[str]) -> str:
     """Messy ingredient lines -> a bag of meaningful ingredient words.
@@ -214,6 +248,8 @@ class Recommender:
             cal = r.get("calories")
             prot = r.get("protein")
             if not (title and recipe_ingredients and recipe_directions and cal is not None and prot is not None):
+                continue
+            if is_drink(title):
                 continue
             # Nutrition sanity gate.
             try:
@@ -342,16 +378,29 @@ class Recommender:
 
     def allergy_mask(self, allergies: list[str]) -> np.ndarray:
         """True where the recipe contains NONE of the allergens.
-
-        Word-boundary matching, so "egg" no longer trips on "eggplant".
+        Category allergens ("dairy") are expanded into the ingredient words
+        recipes actually use ("butter", "cream"). Unknown/custom entries fall
+        back to literal matching. Word-boundary regex throughout, so "egg"
+        still doesn't trip on "eggplant".
         """
         if not allergies:
             return np.ones(self.n, dtype=bool)
-        patterns = [re.compile(rf"\b{re.escape(a.lower())}s?\b") for a in allergies if a.strip()]
-        if not patterns:
+
+        words: set[str] = set()
+        for a in allergies:
+            a = a.lower().strip()
+            if not a:
+                continue
+            words |= ALLERGENS.get(a, {a})
+
+        if not words:
             return np.ones(self.n, dtype=bool)
+
+        pattern = re.compile(
+            r"\b(" + "|".join(re.escape(w) for w in sorted(words)) + r")s?\b"
+        )
         return np.fromiter(
-            (not any(p.search(blob) for p in patterns) for blob in self.ingredient_blobs),
+            (not pattern.search(blob) for blob in self.ingredient_blobs),
             dtype=bool,
             count=self.n,
         )
