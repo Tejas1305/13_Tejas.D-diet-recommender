@@ -1,5 +1,3 @@
-# 13_Tejas.D-diet-recommender
-Personalized diet recommender: users enter their goals, dietary restrictions, and cuisine preferences to receive a balanced daily meal plan. Each recommended meal opens a full recipe, and rating meals refines future suggestions to match personal taste.
 # Diet Recommender
 
 You tell it a few things once — whether you're vegetarian, non-vegetarian or pescatarian, what you're allergic to, and your daily calorie and protein targets — and it hands back a full balanced day of meals: breakfast, lunch, dinner and a snack. Every meal explains *why* it's there, opens into a real recipe you can cook, and the more you rate what you like, the more the suggestions lean toward your taste.
@@ -47,7 +45,7 @@ Three containers, each doing one job, wired together on a private Docker network
 | **backend**  | FastAPI (Python 3.12) | Accounts, data, and the recommendation engine — all the actual work. |
 | **db**       | PostgreSQL 17 |  Every user's accounts, preferences, ratings and saved meals.  |
 
-The recommendation engine is **content-based**: it turns each recipe into a TF-IDF vector of its ingredients and tags, learns a "taste vector" from the recipes you've rated, and ranks candidates by cosine similarity — but only after filtering out anything that breaks a rule (wrong diet, contains an allergen, wrong calorie range). Content-based rather than collaborative because it works from your very first rating, with no need for a crowd of other users first.
+The recommendation engine is **content-based**: it turns each recipe into a TF-IDF vector of its ingredients and tags, learns a "taste vector" from the recipes you've rated, and ranks candidates by cosine similarity — but only after filtering out anything that breaks a rule (wrong diet, contains an allergen, wrong calorie range). Allergy categories such as dairy or gluten are expanded to the ingredient words recipes actually use, and drinks are left out of meal plans by default. Content-based rather than collaborative because it works from your very first rating, with no need for a crowd of other users first.
 
 The engine and its data are built into memory once when the backend boots; every request after that is served without touching the database on the hot path. The full reasoning — TF-IDF, the taste vector, cosine similarity, the meal-plan assembly — is written up in [`docs/ml_logic.md`](docs/ml_logic.md).
 
@@ -139,7 +137,7 @@ docker compose down -v   # also wipe the database volume for a clean slate
 │   └── Dockerfile
 ├── docs/                    # design documentation (read these)
 ├── notebooks/               # recommendation-engine development notebook
-├── seed/                    # recipe dataset loaded on first boot
+├── seed/                    # recipe dataset loaded into memory at startup
 ├── docker-compose.yaml      # the three services, wired together
 └── .env.example
 ```
@@ -148,7 +146,17 @@ docker compose down -v   # also wipe the database volume for a clean slate
 
 ## The dataset
 
-Recipes come from **Epicurious — Recipes with Rating and Nutrition** ([Kaggle: `hugodarwood/epirecipes`](https://www.kaggle.com/datasets/hugodarwood/epirecipes)), roughly 20,000 recipes with titles, ingredient lines, directions, category tags and nutrition. The file ships inside the repo under `seed/`, so there's nothing to download at runtime — on first boot the backend loads it into PostgreSQL, and only if the recipes table is empty, so restarts never pile up duplicates. That's what keeps the whole thing plug-and-play.
+Recipes come from **Epicurious — Recipes with Rating and Nutrition** ([Kaggle: `hugodarwood/epirecipes`](https://www.kaggle.com/datasets/hugodarwood/epirecipes)), roughly 20,000 recipes with titles, ingredient lines, directions, category tags and nutrition. The file ships inside the repo under seed/, so there's nothing to download at runtime — on startup the backend reads it into memory and builds the recommendation vectors. Nothing is imported into PostgreSQL; the database holds only user data. That is what keeps the whole thing plug-and-play.
+
+---
+
+## Known limitations
+
+- **Allergen and diet matching is keyword-based.** Categories are expanded to the ingredient words recipes use, but a small number of composite ingredients — Worcestershire sauce, dashi — contain animal or allergen products without naming them, so they can slip through. A production system would use a trained classifier.
+- **Drinks are excluded by default** with no option yet to include them.
+- **No vegan diet type yet.** Vegetarian allows eggs and dairy; users avoiding those can add them as allergies for now.
+- **Authentication uses a single access token** with no refresh-token rotation.
+- **The frontend container runs the Vite development server.** A production build would serve static files behind a small web server and ship a much smaller image.
 
 ---
 
@@ -161,6 +169,22 @@ The thinking behind each part lives in [`docs/`](docs/):
 - [`api_design.md`](docs/api_design.md) — the endpoints
 - [`database_schema.md`](docs/database_schema.md) — the tables and how they connect
 - [`ml_logic.md`](docs/ml_logic.md) — the recommendation engine, derived from first principles
+
+---
+
+## AI assistance Declaration
+
+This project was built with the help of an AI coding assistant (Gemini, Claude), used the way a developer uses any modern tool — to move faster on implementation while the design decisions and their trade-offs stayed with me.
+
+I own the architecture and the engineering choices:recommendation system, classifying diet from ingredients rather than the dataset's unreliable tags, holding the recipe catalogue in memory rather than querying it per request, and the allergen and drink handling added after testing against the real data. 
+
+Approximate share of AI assistance by area:
+
+| Area | Used For | AI assistance |
+|---|---|---|
+| Frontend | UI components, styling, layout | ~70% |
+| Backend | Implementation and boilerplate; design and logic my own | ~30% |
+| Docker / infrastructure | AI Not Used | ~0% |
 
 ---
 
