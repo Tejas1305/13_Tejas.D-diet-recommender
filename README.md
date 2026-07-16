@@ -156,7 +156,6 @@ Recipes come from **Epicurious — Recipes with Rating and Nutrition** ([Kaggle:
 - **Drinks are excluded by default** with no option yet to include them.
 - **No vegan diet type yet.** Vegetarian allows eggs and dairy; users avoiding those can add them as allergies for now.
 - **Authentication uses a single access token** with no refresh-token rotation.
-- **The frontend container runs the Vite development server.** A production build would serve static files behind a small web server and ship a much smaller image.
 
 ---
 
